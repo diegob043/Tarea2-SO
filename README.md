@@ -1,10 +1,10 @@
-# Grupo 4 SO Tarea 2: Procesamiento paralelo de imágenes usando hebras
+# Grupo 4 SO - Tarea 2: Procesamiento paralelo de imágenes usando hebras
 
 ### Integrantes
 - Carlos Urzúa
 - Diego Ampuero
 
-###Pasos para compilar el programa
+### Pasos para compilar el programa
 1. Instalación del compilador g++
    - $ `sudo apt update`
    - $ `sudo apt install build-essential` Luego presionar Y
