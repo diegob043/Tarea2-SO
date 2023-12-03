@@ -5,9 +5,9 @@
 - Diego Ampuero
 
 ### README del programa
-   -[README versión Secuencial](src/Secuencial/README-secuencial.md)
-   -[README versión Paralela](src/Paralela/README-paralela.md)
-   -[README versión Paralela con OpenMP](src/ParalelaOpenMP/README-paralela-OpenMP.md)
+   - [README versión Secuencial](src/Secuencial/README-secuencial.md)
+   - [README versión Paralela](src/Paralela/README-paralela.md)
+   - [README versión Paralela con OpenMP](src/ParalelaOpenMP/README-paralela-OpenMP.md)
 
 ### Dependencias
 El programa en sus 3 versiones necesita de las siguientes dependencias para su correcto funcionamiento
