@@ -1,11 +1,13 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <omp.h>
 
 using namespace cv;
 using namespace std;
 
-// Función para convertir una región de la imagen a escala de grises (versión secuencial)
+// Función para convertir una región de la imagen a escala de grises (versión paralela)
 void convertRegionToGrayscale(const Mat& input, Mat& output, int startRow, int endRow) {
+    #pragma omp parallel for
     for (int r = startRow; r < endRow; r++) {
         for (int c = 0; c < input.cols; c++) {
             Vec3b& pixel = output.at<Vec3b>(r, c);
@@ -19,7 +21,7 @@ void convertRegionToGrayscale(const Mat& input, Mat& output, int startRow, int e
 
 int main(int argc, char** argv) {
     if (argc < 3) {
-        cout << "Use la sintaxis: ./secuencial imagen_entrada imagen_salida" << endl;
+        cout << "Use la sintaxis: ./paralelo imagen_entrada imagen_salida" << endl;
         return -1;
     }
 
@@ -34,8 +36,21 @@ int main(int argc, char** argv) {
 
     Mat grayscaleImage = image.clone();
 
-    // Versión secuencial
-    convertRegionToGrayscale(image, grayscaleImage, 0, image.rows);
+    // Versión paralela
+    int numThreads = omp_get_max_threads();
+    int rowsPerThread = image.rows / numThreads;
+
+    #pragma omp parallel
+    {
+        int threadId = omp_get_thread_num();
+        int startRow = threadId * rowsPerThread;
+        int endRow = (threadId + 1) * rowsPerThread;
+        if (threadId == numThreads - 1) {
+            endRow = image.rows; // La última hebra se encarga de las filas restantes
+        }
+
+        convertRegionToGrayscale(image, grayscaleImage, startRow, endRow);
+    }
 
     imwrite(outputImagePath, grayscaleImage);
 
