@@ -1,20 +1,22 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <omp.h>
+#include <chrono>
 
 using namespace cv;
 using namespace std;
+using namespace std::chrono;
 
 // Función para convertir una región de la imagen a escala de grises (versión paralela)
-void convertRegionToGrayscale(const Mat& input, Mat& output, int startRow, int endRow) {
+void convertirRegionAGrises(const Mat& entrada, Mat& salida, int filaInicio, int filaFin) {
     #pragma omp parallel for
-    for (int r = startRow; r < endRow; r++) {
-        for (int c = 0; c < input.cols; c++) {
-            Vec3b& pixel = output.at<Vec3b>(r, c);
-            int grayValue = (pixel[0] + pixel[1] + pixel[2]) / 3;
-            pixel[0] = grayValue;
-            pixel[1] = grayValue;
-            pixel[2] = grayValue;
+    for (int r = filaInicio; r < filaFin; r++) {
+        for (int c = 0; c < entrada.cols; c++) {
+            Vec3b& pixel = salida.at<Vec3b>(r, c);
+            int valorGris = (pixel[0] + pixel[1] + pixel[2]) / 3;
+            pixel[0] = valorGris;
+            pixel[1] = valorGris;
+            pixel[2] = valorGris;
         }
     }
 }
@@ -25,34 +27,44 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    string inputImagePath = argv[1];
-    string outputImagePath = argv[2];
+    string rutaImagenEntrada = argv[1];
+    string rutaImagenSalida = argv[2];
 
-    Mat image = imread(inputImagePath, IMREAD_COLOR);
-    if (image.empty()) {
+    Mat imagen = imread(rutaImagenEntrada, IMREAD_COLOR);
+    if (imagen.empty()) {
         cout << "Error al cargar la imagen. Verifique que la imagen esté en el directorio" << endl;
         return -1;
     }
 
-    Mat grayscaleImage = image.clone();
+    Mat imagenGrises = imagen.clone();
+
+    int numHebras;
+    cout << "Ingrese el número de hebras a utilizar: ";
+    cin >> numHebras;
 
     // Versión paralela
-    int numThreads = omp_get_max_threads();
-    int rowsPerThread = image.rows / numThreads;
+    int filasPorHebra = imagen.rows / numHebras;
 
-    #pragma omp parallel
+    auto inicioTiempo = high_resolution_clock::now(); // Iniciar el cronómetro
+
+    #pragma omp parallel num_threads(numHebras)
     {
-        int threadId = omp_get_thread_num();
-        int startRow = threadId * rowsPerThread;
-        int endRow = (threadId + 1) * rowsPerThread;
-        if (threadId == numThreads - 1) {
-            endRow = image.rows; // La última hebra se encarga de las filas restantes
+        int idHebra = omp_get_thread_num();
+        int filaInicio = idHebra * filasPorHebra;
+        int filaFin = (idHebra + 1) * filasPorHebra;
+        if (idHebra == numHebras - 1) {
+            filaFin = imagen.rows; // La última hebra se encarga de las filas restantes
         }
 
-        convertRegionToGrayscale(image, grayscaleImage, startRow, endRow);
+        convertirRegionAGrises(imagen, imagenGrises, filaInicio, filaFin);
     }
 
-    imwrite(outputImagePath, grayscaleImage);
+    auto finTiempo = high_resolution_clock::now(); // Detener el cronómetro
+    auto duracion = duration_cast<duration<double>>(finTiempo - inicioTiempo); // Calcular la duración en segundos
+
+    imwrite(rutaImagenSalida, imagenGrises);
+
+    cout << "Tiempo de ejecución total: " << duracion.count() << " segundos" << endl;
 
     return 0;
 }
