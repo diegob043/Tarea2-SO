@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-std=c++11 -Wall -Wextra -I/usr/include/opencv4
 LIBS=`pkg-config --cflags --libs opencv4`
 
-all: sequential
+all: secuencial
 
-sequential: secuencial.cpp
-	$(CC) $(CFLAGS) -o sequential secuencial.cpp $(LIBS)
+secuencial: secuencial.cpp
+	$(CC) $(CFLAGS) -o secuencial secuencial.cpp $(LIBS)

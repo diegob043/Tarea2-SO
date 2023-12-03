@@ -1,18 +1,20 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <chrono>
 
 using namespace cv;
 using namespace std;
+using namespace std::chrono;
 
 // Función para convertir una región de la imagen a escala de grises (versión secuencial)
-void convertRegionToGrayscale(const Mat& input, Mat& output, int startRow, int endRow) {
-    for (int r = startRow; r < endRow; r++) {
-        for (int c = 0; c < input.cols; c++) {
-            Vec3b& pixel = output.at<Vec3b>(r, c);
-            int grayValue = (pixel[0] + pixel[1] + pixel[2]) / 3;
-            pixel[0] = grayValue;
-            pixel[1] = grayValue;
-            pixel[2] = grayValue;
+void convertirRegionAGrises(const Mat& entrada, Mat& salida, int filaInicial, int filaFinal) {
+    for (int r = filaInicial; r < filaFinal; r++) {
+        for (int c = 0; c < entrada.cols; c++) {
+            Vec3b& pixel = salida.at<Vec3b>(r, c);
+            int valorGris = (pixel[0] + pixel[1] + pixel[2]) / 3;
+            pixel[0] = valorGris;
+            pixel[1] = valorGris;
+            pixel[2] = valorGris;
         }
     }
 }
@@ -23,21 +25,28 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    string inputImagePath = argv[1];
-    string outputImagePath = argv[2];
+    string rutaImagenEntrada = argv[1];
+    string rutaImagenSalida = argv[2];
 
-    Mat image = imread(inputImagePath, IMREAD_COLOR);
-    if (image.empty()) {
+    Mat imagen = imread(rutaImagenEntrada, IMREAD_COLOR);
+    if (imagen.empty()) {
         cout << "Error al cargar la imagen. Verifique que la imagen esté en el directorio" << endl;
         return -1;
     }
 
-    Mat grayscaleImage = image.clone();
+    Mat imagenGrises = imagen.clone();
 
     // Versión secuencial
-    convertRegionToGrayscale(image, grayscaleImage, 0, image.rows);
+    auto inicio = high_resolution_clock::now(); // Iniciar el cronómetro
 
-    imwrite(outputImagePath, grayscaleImage);
+    convertirRegionAGrises(imagen, imagenGrises, 0, imagen.rows);
+
+    auto fin = high_resolution_clock::now(); // Detener el cronómetro
+    auto duracion = duration_cast<duration<double>>(fin - inicio); // Calcular la duración en segundos
+
+    imwrite(rutaImagenSalida, imagenGrises);
+
+    cout << "Tiempo de ejecución total: " << duracion.count() << " segundos" << endl;
 
     return 0;
 }
