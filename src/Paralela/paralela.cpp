@@ -1,6 +1,8 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <thread>
+#include <chrono>
+#include <iomanip>
 
 using namespace cv;
 using namespace std;
@@ -37,9 +39,12 @@ int main(int argc, char** argv) {
 
     // Versión paralela
     int numHebras = thread::hardware_concurrency();
+    cout << "Cantidad de hebras utilizadas: " << numHebras << endl;
+
     int filasPorHebra = imagen.rows / numHebras;
 
     vector<thread> hebras(numHebras);
+    auto inicioTiempo = chrono::high_resolution_clock::now(); // Iniciar el cronómetro
     for (int i = 0; i < numHebras; i++) {
         int filaInicial = i * filasPorHebra;
         int filaFinal = (i + 1) * filasPorHebra;
@@ -53,8 +58,13 @@ int main(int argc, char** argv) {
     for (auto& t : hebras) {
         t.join();
     }
+    auto finTiempo = chrono::high_resolution_clock::now(); // Detener el cronómetro
+    auto duracion = chrono::duration_cast<chrono::duration<double>>(finTiempo - inicioTiempo); // Calcular la duración en segundos
 
     imwrite(rutaImagenSalida, imagenGrises);
+
+    cout << fixed << setprecision(5); // Configurar la precisión decimal
+    cout << "Tiempo de ejecución total: " << duracion.count() << " segundos" << endl;
 
     return 0;
 }
