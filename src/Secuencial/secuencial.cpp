@@ -7,7 +7,7 @@ using namespace std;
 using namespace std::chrono;
 
 // Función para convertir una región de la imagen a escala de grises (versión secuencial)
-void convertirRegionAGrises(const Mat& entrada, Mat& salida, int filaInicial, int filaFinal) {
+void convertirImgAGris(const Mat& entrada, Mat& salida, int filaInicial, int filaFinal) {
     for (int r = filaInicial; r < filaFinal; r++) {
         for (int c = 0; c < entrada.cols; c++) {
             Vec3b& pixel = salida.at<Vec3b>(r, c);
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
     // Versión secuencial
     auto inicio = high_resolution_clock::now(); // Iniciar el cronómetro
 
-    convertirRegionAGrises(imagen, imagenGrises, 0, imagen.rows);
+    convertirImgAGris(imagen, imagenGrises, 0, imagen.rows);
 
     auto fin = high_resolution_clock::now(); // Detener el cronómetro
     auto duracion = duration_cast<duration<double>>(fin - inicio); // Calcular la duración en segundos
