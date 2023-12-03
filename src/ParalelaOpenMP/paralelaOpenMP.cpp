@@ -8,7 +8,7 @@ using namespace std;
 using namespace std::chrono;
 
 // Función para convertir una región de la imagen a escala de grises (versión paralela)
-void convertirRegionAGrises(const Mat& entrada, Mat& salida, int filaInicio, int filaFin) {
+void convertirImgAGris(const Mat& entrada, Mat& salida, int filaInicio, int filaFin) {
     #pragma omp parallel for
     for (int r = filaInicio; r < filaFin; r++) {
         for (int c = 0; c < entrada.cols; c++) {
@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
             filaFin = imagen.rows; // La última hebra se encarga de las filas restantes
         }
 
-        convertirRegionAGrises(imagen, imagenGrises, filaInicio, filaFin);
+        convertirImgAGris(imagen, imagenGrises, filaInicio, filaFin);
     }
 
     auto finTiempo = high_resolution_clock::now(); // Detener el cronómetro
